@@ -1,0 +1,18 @@
+{
+  "name": "@uwazi/ngo-transparency-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:hardhat": "hardhat run scripts/deploy.ts --network hardhat",
+    "node": "hardhat node"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.17",
+    "typescript": "^5.7.2",
+    "ts-node": "^10.9.2"
+  }
+}
