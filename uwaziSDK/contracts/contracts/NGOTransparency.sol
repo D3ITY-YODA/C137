@@ -51,3 +51,11 @@ contract NGOTransparency {
 
         emit DonationMade(msg.sender, msg.value, block.timestamp);
     }
+
+     /// @notice Admin allocates contract balance to a beneficiary
+    function allocateFunds(address beneficiary, uint256 amount) external {
+        require(msg.sender == admin, "Only admin");
+        require(beneficiary != address(0), "Invalid beneficiary");
+        require(amount > 0, "Amount must be greater than zero");
+        require(address(this).balance >= amount, "Insufficient balance");
+
