@@ -23,3 +23,14 @@ describe("NGOTransparency", () => {
     const tx = await contract.connect(donor).donate({ value: ethers.parseEther("1") });
     const receipt = await tx.wait();
     const block = await ethers.provider.getBlock(receipt!.blockNumber);
+
+     await expect(tx)
+      .to.emit(contract, "DonationMade")
+      .withArgs(donor.address, ethers.parseEther("1"), block!.timestamp);
+
+    expect(await contract.donationsCount()).to.equal(1n);
+    const donation = await contract.donations(0);
+    expect(donation.donor).to.equal(donor.address);
+    expect(donation.amount).to.equal(ethers.parseEther("1"));
+    expect(donation.timestamp).to.equal(block!.timestamp);
+  });
