@@ -54,3 +54,11 @@ describe("NGOTransparency", () => {
 
     expect((await contract.allocations(0)).confirmed).to.equal(true);
   });
+
+  it("rejects non-admin allocation", async () => {
+    await contract.connect(donor).donate({ value: ethers.parseEther("1") });
+    await expect(
+      contract.connect(donor).allocateFunds(beneficiary.address, ethers.parseEther("1"))
+    ).to.be.revertedWith("Only admin");
+  });
+});
