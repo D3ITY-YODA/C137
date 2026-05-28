@@ -23,6 +23,20 @@ contract NGOTransparency {
         admin = msg.sender;
     }
 
+    Donation[] public donations;
+    Allocation[] public allocations;
+
+    event DonationMade(address indexed donor, uint256 amount, uint256 timestamp);
+    event FundsAllocated(
+        address indexed beneficiary,
+        uint256 amount,
+        uint256 indexed allocationId
+    );
+    event ReceiptConfirmed(
+        uint256 indexed allocationId,
+        address indexed beneficiary
+    );
+
     /// @notice Beneficiary confirms they received an allocation
     function confirmReceipt(uint256 allocationId) external {
         require(allocationId < allocations.length, "Invalid allocation id");
