@@ -14,3 +14,12 @@ describe("NGOTransparency", () => {
     contract = await factory.connect(admin).deploy();
     await contract.waitForDeployment();
   });
+
+    it("sets deployer as admin", async () => {
+    expect(await contract.admin()).to.equal(admin.address);
+  });
+
+  it("records donations", async () => {
+    const tx = await contract.connect(donor).donate({ value: ethers.parseEther("1") });
+    const receipt = await tx.wait();
+    const block = await ethers.provider.getBlock(receipt!.blockNumber);
