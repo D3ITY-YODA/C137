@@ -34,3 +34,23 @@ describe("NGOTransparency", () => {
     expect(donation.amount).to.equal(ethers.parseEther("1"));
     expect(donation.timestamp).to.equal(block!.timestamp);
   });
+
+   it("allows admin to allocate and beneficiary to confirm", async () => {
+    await contract.connect(donor).donate({ value: ethers.parseEther("2") });
+
+    await expect(
+      contract.connect(admin).allocateFunds(beneficiary.address, ethers.parseEther("1"))
+    )
+      .to.emit(contract, "FundsAllocated")
+      .withArgs(beneficiary.address, ethers.parseEther("1"), 0);
+
+    const allocation = await contract.allocations(0);
+    expect(allocation.beneficiary).to.equal(beneficiary.address);
+    expect(allocation.confirmed).to.equal(false);
+
+    await expect(contract.connect(beneficiary).confirmReceipt(0))
+      .to.emit(contract, "ReceiptConfirmed")
+      .withArgs(0, beneficiary.address);
+
+    expect((await contract.allocations(0)).confirmed).to.equal(true);
+  });
