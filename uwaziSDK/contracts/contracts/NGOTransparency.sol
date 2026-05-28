@@ -32,3 +32,22 @@ contract NGOTransparency {
         uint256 indexed allocationId,
         address indexed beneficiary
     );
+
+        constructor() {
+        admin = msg.sender;
+    }
+
+    /// @notice Accept a donation in native currency (ETH/MATIC)
+    function donate() external payable {
+        require(msg.value > 0, "Amount must be greater than zero");
+
+        donations.push(
+            Donation({
+                donor: msg.sender,
+                amount: msg.value,
+                timestamp: block.timestamp
+            })
+        );
+
+        emit DonationMade(msg.sender, msg.value, block.timestamp);
+    }
