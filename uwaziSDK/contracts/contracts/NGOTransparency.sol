@@ -87,3 +87,12 @@ contract NGOTransparency {
         emit ReceiptConfirmed(allocationId, msg.sender);
     }
 
+    function donationsCount() external view returns (uint256) {
+        return donations.length;
+    }
+
+    function allocationsCount() external view returns (uint256) {
+        return allocations.length;
+    }
+}
+
