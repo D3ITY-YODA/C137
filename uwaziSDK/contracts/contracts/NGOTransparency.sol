@@ -59,3 +59,20 @@ contract NGOTransparency {
         require(amount > 0, "Amount must be greater than zero");
         require(address(this).balance >= amount, "Insufficient balance");
 
+
+        uint256 allocationId = allocations.length;
+        allocations.push(
+            Allocation({
+                beneficiary: beneficiary,
+                amount: amount,
+                timestamp: block.timestamp,
+                confirmed: false
+            })
+        );
+
+        (bool success, ) = beneficiary.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        emit FundsAllocated(beneficiary, amount, allocationId);
+    }
+
