@@ -38,4 +38,27 @@ contract NGOTransparency {
     function allocationsCount() external view returns (uint256) {
         return allocations.length;
     }
+
+    /// @notice Admin allocates contract balance to a beneficiary
+    function allocateFunds(address beneficiary, uint256 amount) external {
+        require(msg.sender == admin, "Only admin");
+        require(beneficiary != address(0), "Invalid beneficiary");
+        require(amount > 0, "Amount must be greater than zero");
+        require(address(this).balance >= amount, "Insufficient balance");
+
+        uint256 allocationId = allocations.length;
+        allocations.push(
+            Allocation({
+                beneficiary: beneficiary,
+                amount: amount,
+                timestamp: block.timestamp,
+                confirmed: false
+            })
+        );
+
+        (bool success, ) = beneficiary.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        emit FundsAllocated(beneficiary, amount, allocationId);
+    }
 }
