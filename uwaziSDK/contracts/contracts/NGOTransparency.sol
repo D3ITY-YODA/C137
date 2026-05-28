@@ -18,3 +18,17 @@ contract NGOTransparency {
         uint256 timestamp;
         bool confirmed;
     }
+
+     Donation[] public donations;
+    Allocation[] public allocations;
+
+    event DonationMade(address indexed donor, uint256 amount, uint256 timestamp);
+    event FundsAllocated(
+        address indexed beneficiary,
+        uint256 amount,
+        uint256 indexed allocationId
+    );
+    event ReceiptConfirmed(
+        uint256 indexed allocationId,
+        address indexed beneficiary
+    );
