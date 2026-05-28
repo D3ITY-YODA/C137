@@ -19,6 +19,10 @@ contract NGOTransparency {
         bool confirmed;
     }
 
+    constructor() {
+        admin = msg.sender;
+    }
+
     /// @notice Beneficiary confirms they received an allocation
     function confirmReceipt(uint256 allocationId) external {
         require(allocationId < allocations.length, "Invalid allocation id");
