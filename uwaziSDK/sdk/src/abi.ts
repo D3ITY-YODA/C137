@@ -1,0 +1,16 @@
+/**
+ * NGOTransparency contract ABI (keep in sync with contracts/contracts/NGOTransparency.sol)
+ */
+export const NGO_TRANSPARENCY_ABI = [
+  "function donate() payable",
+  "function allocateFunds(address beneficiary, uint256 amount)",
+  "function confirmReceipt(uint256 allocationId)",
+  "function admin() view returns (address)",
+  "function donations(uint256) view returns (address donor, uint256 amount, uint256 timestamp)",
+  "function allocations(uint256) view returns (address beneficiary, uint256 amount, uint256 timestamp, bool confirmed)",
+  "function donationsCount() view returns (uint256)",
+  "function allocationsCount() view returns (uint256)",
+  "event DonationMade(address indexed donor, uint256 amount, uint256 timestamp)",
+  "event FundsAllocated(address indexed beneficiary, uint256 amount, uint256 indexed allocationId)",
+  "event ReceiptConfirmed(uint256 indexed allocationId, address indexed beneficiary)",
+] as const;
