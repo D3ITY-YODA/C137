@@ -75,4 +75,15 @@ contract NGOTransparency {
 
         emit FundsAllocated(beneficiary, amount, allocationId);
     }
+      /// @notice Beneficiary confirms they received an allocation
+    function confirmReceipt(uint256 allocationId) external {
+        require(allocationId < allocations.length, "Invalid allocation id");
+
+        Allocation storage allocation = allocations[allocationId];
+        require(msg.sender == allocation.beneficiary, "Only beneficiary");
+        require(!allocation.confirmed, "Already confirmed");
+
+        allocation.confirmed = true;
+        emit ReceiptConfirmed(allocationId, msg.sender);
+    }
 
