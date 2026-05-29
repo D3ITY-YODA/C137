@@ -40,20 +40,51 @@ npm run deploy:local
 
 Copy the printed contract address into your frontend `.env` or SDK config.
 
-### Polygon Amoy testnet
+### Public testnets (pick one)
 
-1. Create `.env` in this folder:
+The contract works on **any EVM chain** (Ethereum, Polygon, Base, etc.). You only need:
+
+1. `DEPLOYER_PRIVATE_KEY` in `.env` (see `.env.example`)
+2. An RPC URL for that chain
+3. **Testnet gas tokens** on the deployer address (`0x2c81…` from your logs)
+
+| Network | Deploy command | Faucet | MetaMask chainId |
+|---------|----------------|--------|------------------|
+| **Ethereum Sepolia** (recommended) | `npm run deploy:sepolia` | [sepoliafaucet.com](https://sepoliafaucet.com) | `11155111` |
+| Polygon Amoy | `npm run deploy:amoy` | [Polygon faucet](https://faucet.polygon.technology/) | `80002` |
+| Base Sepolia | `npm run deploy:base` | [Coinbase faucet](https://www.coinbase.com/faucets/base-ethereum-goerli-faucet) | `84532` |
+
+**Example — Ethereum Sepolia**
 
 ```env
-DEPLOYER_PRIVATE_KEY=your_wallet_private_key_without_0x_prefix
-POLYGON_AMOY_RPC_URL=https://rpc-amoy.polygon.technology
+DEPLOYER_PRIVATE_KEY=your_key
+SEPOLIA_RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 ```
 
-2. Fund the deployer wallet with Amoy MATIC from a faucet.
-3. Deploy:
+```bash
+npm run balance:sepolia    # must show balance > 0
+npm run deploy:sepolia
+```
+
+`insufficient funds … balance 0` means the RPC works but the wallet has **no test ETH/MATIC**. Fund `Deploying from:` address on that **same** network.
+
+### RPC errors (443 / ETIMEDOUT)
+
+Use a different RPC in `.env`, or a free [Alchemy](https://www.alchemy.com/) / [Infura](https://www.infura.io/) URL:
+
+```env
+SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+```
 
 ```bash
-npx hardhat run scripts/deploy.ts --network polygonAmoy
+NODE_OPTIONS=--dns-result-order=ipv4first npm run balance:sepolia
+```
+
+### Local (no faucet, no real chain)
+
+```bash
+npm run node          # terminal 1
+npm run deploy:local  # terminal 2 — use in demo with Hardhat MetaMask network
 ```
 
 ## Contract API
