@@ -13,6 +13,7 @@ import {
   type Beneficiary,
   type NgoMetadata,
 } from "@/lib/api";
+import { assertContractDeployed, assertCorrectNetwork, EXPECTED_CHAIN_NAME } from "@/lib/chain";
 import { createSdk, getContractAddress, shortenAddress } from "@/lib/sdk";
 
 export function Dashboard() {
@@ -74,6 +75,10 @@ export function Dashboard() {
         return;
       }
       const address = await sdk.connectWallet();
+      const { BrowserProvider } = await import("ethers");
+      const browser = new BrowserProvider(window.ethereum!);
+      await assertCorrectNetwork(browser);
+      await assertContractDeployed(browser, getContractAddress());
       setWallet(address);
       await refreshChain(sdk);
       setStatus(`Connected as ${shortenAddress(address)}`);
@@ -114,6 +119,9 @@ export function Dashboard() {
           <p className="mt-1 max-w-xl text-slate-600">{ngo?.description}</p>
           <p className="mt-2 font-mono text-xs text-slate-500">
             Contract: {getContractAddress() || "not set"}
+          </p>
+          <p className="text-xs text-slate-500">
+            Required network: {EXPECTED_CHAIN_NAME}
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
