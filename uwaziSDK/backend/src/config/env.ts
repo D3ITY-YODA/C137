@@ -1,4 +1,13 @@
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const backendRoot = resolve(__dirname, "../..");
+
+// Load backend/.env regardless of current working directory.
+loadEnv({ path: resolve(backendRoot, ".env") });
 
 function parseOrigins(value: string | undefined): string[] {
   if (!value?.trim()) {
