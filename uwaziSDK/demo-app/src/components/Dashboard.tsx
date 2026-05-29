@@ -17,6 +17,7 @@ import { assertContractDeployed, assertCorrectNetwork, EXPECTED_CHAIN_NAME } fro
 import { createSdk, getContractAddress, shortenAddress } from "@/lib/sdk";
 
 export function Dashboard() {
+  const [sdk, setSdk] = useState<NGOTransparencySDK | null>(null);
   const [wallet, setWallet] = useState<string | null>(null);
   const [admin, setAdmin] = useState<string | null>(null);
   const [ngo, setNgo] = useState<NgoMetadata | null>(null);
@@ -34,11 +35,11 @@ export function Dashboard() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const refreshChain = useCallback(async (sdk: NGOTransparencySDK) => {
+  const refreshChain = useCallback(async (s: NGOTransparencySDK) => {
     const [d, a, ad] = await Promise.all([
-      sdk.getDonations(),
-      sdk.getAllocations(),
-      sdk.getAdmin(),
+      s.getDonations(),
+      s.getAllocations(),
+      s.getAdmin(),
     ]);
     setDonations(d);
     setAllocations(a);
@@ -64,38 +65,61 @@ export function Dashboard() {
 
   useEffect(() => {
     refreshMeta();
+    const s = createSdk();
+    setSdk(s);
+
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length > 0) {
+          if (s) performConnect(s);
+        } else {
+          setWallet(null);
+          setStatus("Wallet disconnected");
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged as any);
+      return () => {
+        window.ethereum?.removeListener("accountsChanged", handleAccountsChanged as any);
+      };
+    }
   }, [refreshMeta]);
 
   async function connect() {
     setError(null);
     try {
-      const sdk = createSdk();
       if (!sdk) {
-        setError("MetaMask not detected");
-        return;
+        const newSdk = createSdk();
+        if (!newSdk) throw new Error("MetaMask not detected");
+        setSdk(newSdk);
+        await performConnect(newSdk);
+      } else {
+        await performConnect(sdk);
       }
-      const address = await sdk.connectWallet();
-      const { BrowserProvider } = await import("ethers");
-      const browser = new BrowserProvider(window.ethereum!);
-      await assertCorrectNetwork(browser);
-      await assertContractDeployed(browser, getContractAddress());
-      setWallet(address);
-      await refreshChain(sdk);
-      setStatus(`Connected as ${shortenAddress(address)}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
   }
 
+  async function performConnect(s: NGOTransparencySDK) {
+    const address = await s.connectWallet();
+    const { BrowserProvider } = await import("ethers");
+    const browser = new BrowserProvider(window.ethereum!);
+    await assertCorrectNetwork(browser);
+    await assertContractDeployed(browser, getContractAddress());
+    setWallet(address);
+    await refreshChain(s);
+    setStatus(`Connected as ${shortenAddress(address)}`);
+  }
+
   async function runAction(
     label: string,
-    fn: (sdk: NGOTransparencySDK) => Promise<unknown>
+    fn: (s: NGOTransparencySDK) => Promise<unknown>
   ) {
     setError(null);
     setStatus(null);
     setLoading(true);
     try {
-      const sdk = createSdk();
       if (!sdk || !wallet) throw new Error("Connect wallet first");
       await fn(sdk);
       await refreshChain(sdk);
@@ -120,6 +144,11 @@ export function Dashboard() {
           <p className="mt-2 font-mono text-xs text-slate-500">
             Contract: {getContractAddress() || "not set"}
           </p>
+          {admin && (
+            <p className="mt-1 font-mono text-xs text-slate-500">
+              Admin: {admin}
+            </p>
+          )}
           <p className="text-xs text-slate-500">
             Required network: {EXPECTED_CHAIN_NAME}
           </p>

@@ -53,10 +53,12 @@ export class NGOTransparencySDK {
     const contract = this.requireContract();
     try {
       const value = parseEther(amount);
+      console.log(`Donating ${amount} ETH (${value} wei) to ${this.contractAddress}`);
       const tx = await contract.donate({ value });
       const receipt = await tx.wait();
       return { hash: receipt.hash };
     } catch (error) {
+      console.error("SDK donate error:", error);
       throw this.wrapError("donate", error);
     }
   }
